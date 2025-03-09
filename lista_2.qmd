@@ -1,0 +1,35 @@
+---
+title: ECONOMETRIA I
+format:
+  pdf:
+    documentclass: scrreprt
+    output-file: lista_2.pdf
+---
+
+```{r config}
+#| include = FALSE
+
+# configurações
+knitr::opts_chunk$set(
+ echo = TRUE,
+ warning = FALSE,
+ message = FALSE
+)
+```
+
+# PREVISÃO DE PREÇOS DE IMÓVEIS
+
+O dataset `housing` contém informações históricas sobre preços de imóveis do distrito de Sindian, Nova Taipé, em Taiwan. O objetivo é prever o preço de um imóvel com base em suas características. O dataset contém 414 observações e, após limpo, tem 5 variáveis: preço, data da venda, idade do imóvel, distância para a estação de metrô mais próxima e número de lojas de conveniência na vizinhança.
+
+## Visualização dos dados
+
+```{r}
+# carregando dataset
+housing <- readxl::read_excel(
+  "/Users/albersonmiranda/Documents/r_projects/workshop_reprodutibilidade/econometria_I/data-raw/housing.xlsx"
+)
+
+# visualizando dados
+knitr::kable(head(housing))
+```
+

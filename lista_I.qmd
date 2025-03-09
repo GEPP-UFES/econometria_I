@@ -1,0 +1,141 @@
+---
+title: ECONOMETRIA I
+subtitle: Introdução à regressão linear
+author:
+  - Alberson Miranda^[PPGEco/UFES. alberson.miranda@edu.ufes.br.]
+  - Amanda Pena^[Grupo de Estudos em Políticas Públicas --- GEPP/UFES.]
+date: last-modified
+date-format: long
+lang: pt-BR
+sansfont: Times New Roman
+mainfont: Times New Roman
+toc: true
+toc-title: SUMÁRIO
+bibliography: bib.bib
+cite-method: biblatex
+biblio-style: abnt
+biblio-title: REFERÊNCIAS
+number-sections: true
+format:
+  pdf:
+    documentclass: scrreprt
+    output-file: lista_1.pdf
+---
+
+```{r config}
+#| include = FALSE
+
+# configurações
+knitr::opts_chunk$set(
+ echo = TRUE,
+ warning = FALSE,
+ message = FALSE
+)
+
+# pacotes
+library(ggplot2)
+```
+
+# INTRODUÇÃO
+
+Um modelo de regressão linear assume que a função de regressão $E(X|Y)$ é linear nas entradas $X_1, \ldots, X_p$. Modelos lineares foram amplamente desenvolvidos na era pré-computador da estatística, mas mesmo na era dos computadores de hoje ainda há boas razões para estudá-los e usá-los. Eles são simples e frequentemente fornecem uma descrição adequada e interpretável de como as entradas afetam a saída. Para fins de previsão, eles às vezes podem superar modelos não lineares mais sofisticados, especialmente em situações com pequeno número de casos de treinamento, baixa relação sinal-ruído ou dados esparsos. Finalmente, métodos lineares podem ser aplicados a transformações das entradas e isso expande consideravelmente seu escopo [@hastie_elements_2009].
+
+# MÍNIMOS QUADRADOS ORDINÁRIOS {#sec-mqo}
+
+O método dos mínimos quadrados ordinários (MQO) é um método de estimação de parâmetros em modelos de regressão linear. Ele minimiza o quadrados dos resíduos, que é a diferença entre os valores observados de $Y$ e os valores previstos de $Y$, denotados $\hat{Y}$. A partir da especificação estocástica da função de regressão populacional
+
+$$
+\mathbfit{Y} = \mathbfit{X}\mathbfit{\beta} + \mathbfit{\varepsilon}
+$${#eq-frp}
+
+\noindent onde $\mathbfit{Y}$ é um vetor $n \times 1$ de variáveis dependentes, $\mathbfit{X}$ é uma matriz $n \times (p+1)$ de variáveis independentes, $\mathbfit{\beta}$ é um vetor $(p+1) \times 1$ de parâmetros desconhecidos e $\mathbfit{\varepsilon}$ é um vetor $n \times 1$ de erros aleatórios.
+
+## Estimador do MQO
+
+Partindo da @eq-frp, o quadrado dos resíduos é dado por
+
+$$
+\begin{aligned}
+\mathbfit{e}'\mathbfit{e} & = (\mathbfit{Y} - \mathbfit{X}\mathbfit{\beta})'(\mathbfit{Y} - \mathbfit{X}\mathbfit{\beta}) \\
+& = \mathbfit{Y}'\mathbfit{Y} - 2\mathbfit{\beta}'\mathbfit{X}'\mathbfit{Y} + \mathbfit{\beta}'\mathbfit{X}'\mathbfit{X}\mathbfit{\beta}
+\end{aligned}
+$$ {#eq-qre}
+
+Assumindo que $\mathbfit{\varepsilon}$ é um vetor de erros aleatórios com média zero e variância constante, ou seja, $\mathbfit{\varepsilon} \sim N(0, \sigma^2\mathbfit{I}_n)$, onde $\mathbfit{I}_n$ é a matriz identidade $n \times n$, o estimador de MQO de $\mathbfit{\beta}$ é dado por
+
+$$
+\hat{\mathbfit{\beta}} = (\mathbfit{X}'\mathbfit{X})^{-1}\mathbfit{X}'\mathbfit{Y}
+$${#eq-mqo}
+
+# REGRESSÃO LINEAR EM R
+
+## Exemplo: mtcars {#sec-tabelas}
+
+Como primeiro exemplo, utilizaremos a base de dados `mtcars`, já disponível no R e exibida na @tbl-mtcars.
+
+```{r}
+#| echo: false
+#| label: tbl-mtcars
+#| tbl-cap: Dataset
+
+knitr::kable(
+  x = head(mtcars),
+  digits = 1
+) |>
+kableExtra::kable_styling(latex_options = "striped") |>
+kableExtra::footnote(
+  general = "\\\\hfill Fonte: Elaborado pelo Autor (2025) \\\\hfill",
+  general_title = "",
+  escape = FALSE
+)
+```
+
+## Distribuição
+
+A distribuição das variáveis `cyl`, `hp` e `carb` é apresentada na @fig-mtcars.
+
+```{r}
+#| echo: false
+#| label: fig-mtcars
+#| fig-cap: Boxplot
+#| fig-cap-location: top
+
+mtcars |>
+  tidyr::pivot_longer(cols = c("cyl", "hp", "carb"), names_to = "variavel") |>
+  ggplot(ggplot2::aes(x = variavel, y = value, fill = variavel)) +
+  geom_boxplot() +
+  facet_wrap(~variavel, scales = "free") +
+  labs(
+    y = "", x = ""
+  ) +
+  ggplot2::theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_blank()
+  )
+```
+
+## Regressão
+
+Para regredir a variável `mpg` sobre as variáveis `cyl`, `hp` e `carb`, utilizamos a função `lm()`.
+
+```{r}
+#| results: asis
+#| label: tbl-modelos
+#| tbl-cap: "Estimação"
+
+# modelo
+modelo <- lm(mpg ~ cyl + hp + carb, data = mtcars)
+
+# sumário
+stargazer::stargazer(
+  modelo,
+  title = "Regressão linear",
+  float = FALSE,
+  header = FALSE,
+  notes = "Fonte: Elaborado pelo Autor (2025).",
+  notes.align = "c",
+  notes.label = "",
+  model.numbers = FALSE
+)
+```
